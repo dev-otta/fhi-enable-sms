@@ -10,17 +10,11 @@ This script drives a lifestyle SMS campaign from DHIS2. It reads campaign config
 
 ### DHIS2 connection configuration
 
-The script connects to DHIS2 using environment variables, with sensible defaults:
+The script connects to DHIS2 using environment variables. All three must be set:
 
 - **DHIS2_URL**: Base API URL, e.g. `https://your-server.org/dhis/api`
 - **DHIS2_USERNAME**: DHIS2 username
 - **DHIS2_PASSWORD**: DHIS2 password
-
-If you do nothing, it will use:
-
-- `DHIS2_URL=https://instances.devotta.com/fhienable/api`
-- `DHIS2_USERNAME=admin`
-- `DHIS2_PASSWORD=district`
 
 Example:
 

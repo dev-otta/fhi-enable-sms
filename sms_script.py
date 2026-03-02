@@ -7,9 +7,14 @@ import pandas as pd
 from datetime import datetime, date, timedelta
 
 # ── DHIS2 connection ──────────────────────────────────────────────────
-DHIS2_URL = os.getenv("DHIS2_URL", "https://instances.devotta.com/fhienable/api")
-DHIS2_USERNAME = os.getenv("DHIS2_USERNAME", "admin")
-DHIS2_PASSWORD = os.getenv("DHIS2_PASSWORD", "district")
+DHIS2_URL = os.getenv("DHIS2_URL")
+DHIS2_USERNAME = os.getenv("DHIS2_USERNAME")
+DHIS2_PASSWORD = os.getenv("DHIS2_PASSWORD")
+
+if not DHIS2_URL or not DHIS2_USERNAME or not DHIS2_PASSWORD:
+    print("DHIS2_URL, DHIS2_USERNAME, and DHIS2_PASSWORD must be set in the environment.")
+    sys.exit(1)
+
 AUTH = (DHIS2_USERNAME, DHIS2_PASSWORD)
 HEADERS = {"Content-Type": "application/json"}
 
