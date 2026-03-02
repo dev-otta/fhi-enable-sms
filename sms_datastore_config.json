@@ -1,0 +1,53 @@
+{
+  "anchorMonday": "2026-01-05",
+  "dhis2": {
+    "programUid": "WSGAb5XwJ3Y",
+    "profileStageUid": "iF5roNU7QWm",
+    "ancExamStageUid": "JqW7c9HYjVr",
+    "ancVisitNumberDe": "bXVD2EMF7UW",
+    "phoneAttributeUid": "RJxLa3nITB3"
+  },
+  "campaigns": {
+    "DIET": {
+      "dayOfWeek": 0,
+      "messages": [
+        "Diet SMS 1",
+        "Diet SMS 2",
+        "Diet SMS 3",
+        "Diet SMS 4",
+        "Diet SMS 5",
+        "Diet SMS 6",
+        "Diet SMS 7",
+        "Diet SMS 8"
+      ]
+    },
+    "PHYSICAL": {
+      "dayOfWeek": 2,
+      "messages": [
+        "Physical SMS 1",
+        "Physical SMS 2",
+        "Physical SMS 3",
+        "Physical SMS 4",
+        "Physical SMS 5",
+        "Physical SMS 6",
+        "Physical SMS 7",
+        "Physical SMS 8",
+        "Physical SMS 9"
+      ]
+    },
+    "AIR": {
+      "dayOfWeek": 4,
+      "messages": [
+        "Air SMS 1",
+        "Air SMS 2",
+        "Air SMS 3",
+        "Air SMS 4",
+        "Air SMS 5",
+        "Air SMS 6",
+        "Air SMS 7",
+        "Air SMS 8",
+        "Air SMS 9"
+      ]
+    }
+  }
+}
