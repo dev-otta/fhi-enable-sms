@@ -40,8 +40,8 @@ The JSON combines scheduling, message content, and DHIS2 metadata:
   "dhis2": {
     "programUid": "WSGAb5XwJ3Y",
     "profileStageUid": "iF5roNU7QWm",
-    "ancExamStageUid": "JqW7c9HYjVr",
-    "ancVisitNumberDe": "bXVD2EMF7UW",
+    "birthOutcomeStageUid": "gEyexNoAqHB",
+    "birthOutcomeDe": "VIEg1M2z5Vs",
     "phoneAttributeUid": "RJxLa3nITB3"
   },
   "campaigns": {
@@ -65,13 +65,22 @@ The JSON combines scheduling, message content, and DHIS2 metadata:
 - **dhis2**: DHIS2 metadata for the program and attributes used to select and contact women.
   - **programUid**: Program UID.
   - **profileStageUid**: Program stage UID for the “Women’s profile and history” event.
-  - **ancExamStageUid**: Program stage UID for ANC Examination.
-  - **ancVisitNumberDe**: Data element UID for ANC Visit Number.
+  - **birthOutcomeStageUid**: Program stage UID that holds the birth/pregnancy outcome. The birth-outcome data element is only checked within this stage.
+  - **birthOutcomeDe**: Data element UID for the Birth Outcome. When any non-empty value is recorded for this data element, the woman stops receiving messages.
   - **phoneAttributeUid**: Tracked entity attribute UID for the phone number.
 - **campaigns.\*.dayOfWeek**: 0=Monday, 1=Tuesday, …, 6=Sunday.
 - **campaigns.\*.messages**: Ordered list of SMS texts for that campaign.
 
 To adapt the script to a different DHIS2 instance, update only the `dhis2` block and campaigns in the dataStore JSON; the code does not need changes.
+
+### When messages stop
+
+A woman who has a “Women’s profile and history” event receives campaign messages until **either** of the following stop conditions is reached, whichever comes first:
+
+- **40 weeks after enrollment** — once the send date is on or after `enrollmentDate + 40 weeks`.
+- **A birth outcome is recorded** — once the `birthOutcomeDe` data element holds any non-empty value in the `birthOutcomeStageUid` stage.
+
+The 40-week window is fixed in the script (`WEEKS_UNTIL_STOP`).
 
 ### Creating or updating the DataStore entry
 
