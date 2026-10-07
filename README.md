@@ -37,6 +37,7 @@ The JSON combines scheduling, message content, and DHIS2 metadata:
 ```json
 {
   "anchorMonday": "2026-01-05",
+  "weeksUntilStop": 20,
   "dhis2": {
     "programUid": "WSGAb5XwJ3Y",
     "profileStageUid": "iF5roNU7QWm",
@@ -62,6 +63,7 @@ The JSON combines scheduling, message content, and DHIS2 metadata:
 ```
 
 - **anchorMonday**: A Monday ISO date that defines the start of the bi‑weekly cycle.
+- **weeksUntilStop**: Number of weeks after enrollment that a woman keeps receiving messages (see below). Optional; defaults to 20.
 - **dhis2**: DHIS2 metadata for the program and attributes used to select and contact women.
   - **programUid**: Program UID.
   - **profileStageUid**: Program stage UID for the “Women’s profile and history” event.
@@ -77,10 +79,10 @@ To adapt the script to a different DHIS2 instance, update only the `dhis2` block
 
 A woman who has a “Women’s profile and history” event receives campaign messages until **either** of the following stop conditions is reached, whichever comes first:
 
-- **40 weeks after enrollment** — once the send date is on or after `enrollmentDate + 40 weeks`.
+- **20 weeks after enrollment** — once the send date is on or after `enrollmentDate + weeksUntilStop` weeks (20 by default).
 - **A birth outcome is recorded** — once the `birthOutcomeDe` data element holds any non-empty value in the `birthOutcomeStageUid` stage.
 
-The 40-week window is fixed in the script (`WEEKS_UNTIL_STOP`).
+The window length is set by `weeksUntilStop` in the dataStore config. If it is missing, the script falls back to 20 weeks.
 
 ### Creating or updating the DataStore entry
 

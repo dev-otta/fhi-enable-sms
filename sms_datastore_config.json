@@ -1,5 +1,6 @@
 {
   "anchorMonday": "2026-01-05",
+  "weeksUntilStop": 20,
   "dhis2": {
     "programUid": "WSGAb5XwJ3Y",
     "profileStageUid": "iF5roNU7QWm",

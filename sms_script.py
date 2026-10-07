@@ -34,10 +34,10 @@ BIRTH_OUTCOME_DE = None
 PHONE_ATTRIBUTE_UID = None
 
 # ── Stop rule ─────────────────────────────────────────────────────────
-# A woman stops receiving messages 40 weeks after enrollment, or as soon
-# as a birth-outcome value (of any kind) has been recorded — whichever
-# comes first.
-WEEKS_UNTIL_STOP = 40
+# A woman stops receiving messages WEEKS_UNTIL_STOP weeks after enrollment,
+# or as soon as a birth-outcome value (of any kind) has been recorded —
+# whichever comes first. Overridden by "weeksUntilStop" in the dataStore config.
+WEEKS_UNTIL_STOP = 20
 
 # ── DataStore location ────────────────────────────────────────────────
 DATASTORE_NAMESPACE = "sms-campaigns"
@@ -87,6 +87,7 @@ def fetch_campaign_config():
     Expected structure at  dataStore/sms-campaigns/config :
     {
       "anchorMonday": "2025-01-06",
+      "weeksUntilStop": 20,
       "campaigns": {
         "DIET":     { "dayOfWeek": 0, "messages": ["...", ...] },
         "PHYSICAL": { "dayOfWeek": 2, "messages": ["...", ...] },
@@ -141,6 +142,9 @@ def fetch_campaign_config():
     BIRTH_OUTCOME_DE = dhis2_cfg.get("birthOutcomeDe", BIRTH_OUTCOME_DE)
     PHONE_ATTRIBUTE_UID = dhis2_cfg.get("phoneAttributeUid", PHONE_ATTRIBUTE_UID)
 
+    global WEEKS_UNTIL_STOP
+    WEEKS_UNTIL_STOP = int(config.get("weeksUntilStop", WEEKS_UNTIL_STOP))
+
     anchor = date.fromisoformat(config["anchorMonday"])
     campaigns = {}
     for name, cfg in config["campaigns"].items():
@@ -149,7 +153,7 @@ def fetch_campaign_config():
             "messages": cfg["messages"],
         }
 
-    print(f"  → {len(campaigns)} campaigns loaded.")
+    print(f"  → {len(campaigns)} campaigns loaded (stop after {WEEKS_UNTIL_STOP} weeks).")
     return anchor, campaigns
 
 
@@ -234,7 +238,7 @@ def classify_tei(tei, target_date):
     Returns one of:
       • "eligible"        — has a profile event and no stop condition reached
       • "no_profile"      — no "Women's profile and history" event (entry gate)
-      • "past_40_weeks"   — 40 weeks have passed since enrollment
+      • "past_stop_window" — WEEKS_UNTIL_STOP weeks have passed since enrollment
                             (target_date >= enrollmentDate + WEEKS_UNTIL_STOP)
       • "birth_outcome"   — a Birth Outcome value (any non-empty) is recorded
                             in the birth-outcome program stage
@@ -251,17 +255,17 @@ def classify_tei(tei, target_date):
     if not has_profile:
         return "no_profile"
 
-    # Stop condition 1 — 40 weeks since enrollment.
+    # Stop condition 1 — WEEKS_UNTIL_STOP weeks since enrollment.
     enroll_dates = [
         d
         for d in (parse_dhis2_date(e.get("enrollmentDate")) for e in enrollments)
         if d is not None
     ]
     if enroll_dates:
-        # Use the most recent enrollment as the start of the 40-week window.
+        # Use the most recent enrollment as the start of the stop window.
         stop_date = max(enroll_dates) + timedelta(weeks=WEEKS_UNTIL_STOP)
         if target_date >= stop_date:
-            return "past_40_weeks"
+            return "past_stop_window"
 
     # Stop condition 2 — a birth outcome of any value has been recorded.
     if BIRTH_OUTCOME_DE:
@@ -289,7 +293,7 @@ def print_eligibility_breakdown(target_date, teis):
         "will_send": 0,     # eligible AND has a phone number
         "no_phone": 0,      # eligible but no phone number
         "no_profile": 0,
-        "past_40_weeks": 0,
+        "past_stop_window": 0,
         "birth_outcome": 0,
     }
     for tei in teis:
@@ -303,14 +307,14 @@ def print_eligibility_breakdown(target_date, teis):
     print(f"            will send ............ {counts['will_send']}")
     print(f"            eligible, no phone ... {counts['no_phone']}")
     print(f"            no profile event ..... {counts['no_profile']}")
-    print(f"            past 40 weeks ........ {counts['past_40_weeks']}")
+    print(f"            past {WEEKS_UNTIL_STOP} weeks ........ {counts['past_stop_window']}")
     print(f"            birth outcome set .... {counts['birth_outcome']}")
 
 
 # Human-readable status labels for the debug CSV.
 STATUS_LABELS = {
     "no_profile": "NO_PROFILE",
-    "past_40_weeks": "PAST_40_WEEKS",
+    "past_stop_window": "PAST_STOP_WINDOW",
     "birth_outcome": "BIRTH_OUTCOME",
 }
 
@@ -342,7 +346,7 @@ def build_debug_rows(target_date, teis):
             "Status": label,
             "Phone": phone or "",
             "Enrollment_Date": latest_enrollment.isoformat() if latest_enrollment else "",
-            "Stop_Date_40w": (
+            "Stop_Date": (
                 (latest_enrollment + timedelta(weeks=WEEKS_UNTIL_STOP)).isoformat()
                 if latest_enrollment else ""
             ),
